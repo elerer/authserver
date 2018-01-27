@@ -8,26 +8,27 @@ import (
 	"os"
 )
 
-type casListHandler struct {
-	data string
+type authServerHandler struct {
+	fileName string
+	data     string
 }
 
 func main() {
 	port := 8081
-	cas := newCasListHandler()
-	http.HandleFunc("/GetCASList", cas.serveCasHandler)
+	//CAS
+	cas := authServerHandler{fileName: "caslist"}
+	fillData(&cas)
+	http.HandleFunc("/GetCASList", cas.authServerHandler)
 	log.Printf("Server starting on port %v\n", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), nil))
 }
 
-func newCasListHandler() *casListHandler {
-	cas := new(casListHandler)
+func fillData(ash *authServerHandler) {
 	pwd, _ := os.Getwd()
-	txt, _ := ioutil.ReadFile(pwd + "/files/casList")
-	cas.data = string(txt)
-	return cas
+	txt, _ := ioutil.ReadFile(pwd + "/files/" + ash.fileName)
+	ash.data = string(txt)
 }
 
-func (cas *casListHandler) serveCasHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, cas.data)
+func (ash *authServerHandler) authServerHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, ash.data)
 }
